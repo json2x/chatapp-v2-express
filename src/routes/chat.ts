@@ -20,7 +20,30 @@ const chatRequestSchema = z.object({
 });
 
 /**
- * Chat endpoint that streams responses from the LLM
+ * @swagger
+ * /chat:
+ *   post:
+ *     summary: Send a message and get a streaming response from the LLM
+ *     tags: [Chat]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ChatRequest'
+ *     responses:
+ *       200:
+ *         description: Streaming response from the LLM
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               $ref: '#/components/schemas/ChatStreamResponse'
+ *       400:
+ *         description: Invalid request parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/', async (req: Request, res: Response) => {
   try {

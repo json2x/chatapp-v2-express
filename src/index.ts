@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import 'express-async-errors';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpecs from './config/swagger';
 
 // Import routes
 import chatRouter from './routes/chat';
@@ -38,9 +40,29 @@ app.use('/api/chat', chatRouter);
 app.use('/api/conversations', conversationsRouter);
 app.use('/api/models', modelsRouter);
 
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { 
+  explorer: true,
+  swaggerOptions: {
+    url: '/api-docs.json' // Link to the OpenAPI JSON specification
+  }
+}));
+
+// Expose OpenAPI specification as JSON
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpecs);
+});
+
 // Root route
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to ChatApp v2 API' });
+  res.json({
+    message: 'Welcome to ChatApp v2 API',
+    documentation: {
+      swagger_ui: '/api-docs',
+      openapi_json: '/api-docs.json'
+    }
+  });
 });
 
 // Error handling middleware

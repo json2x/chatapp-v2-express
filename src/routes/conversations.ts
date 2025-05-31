@@ -17,7 +17,44 @@ const listConversationsSchema = z.object({
 });
 
 /**
- * Get all conversations for a specific user
+ * @swagger
+ * /conversations:
+ *   get:
+ *     summary: Get all conversations for a specific user
+ *     tags: [Conversations]
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: string
+ *         description: ID of the user to get conversations for (optional)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Maximum number of conversations to return
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Number of conversations to skip
+ *     responses:
+ *       200:
+ *         description: List of conversations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ConversationSummary'
+ *       400:
+ *         description: Invalid request parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -41,7 +78,37 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 /**
- * Get a conversation by ID, including all its messages
+ * @swagger
+ * /conversations/{conversationId}:
+ *   get:
+ *     summary: Get a conversation by ID, including all its messages
+ *     tags: [Conversations]
+ *     parameters:
+ *       - in: path
+ *         name: conversationId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the conversation to get
+ *     responses:
+ *       200:
+ *         description: The conversation with its messages
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Conversation'
+ *       404:
+ *         description: Conversation not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/:conversationId', async (req: Request, res: Response) => {
   try {
@@ -64,7 +131,46 @@ router.get('/:conversationId', async (req: Request, res: Response) => {
 });
 
 /**
- * Create a new conversation
+ * @swagger
+ * /conversations:
+ *   post:
+ *     summary: Create a new conversation
+ *     tags: [Conversations]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Title of the conversation
+ *               model:
+ *                 type: string
+ *                 description: LLM model to use for the conversation
+ *               user_id:
+ *                 type: string
+ *                 description: ID of the user who owns the conversation (optional)
+ *               system_prompt:
+ *                 type: string
+ *                 description: System prompt to use for the conversation (optional)
+ *             required:
+ *               - title
+ *               - model
+ *     responses:
+ *       201:
+ *         description: The created conversation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Conversation'
+ *       400:
+ *         description: Invalid request parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 const createConversationSchema = z.object({
   title: z.string(),
@@ -91,7 +197,37 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 /**
- * Delete a conversation by ID
+ * @swagger
+ * /conversations/{conversationId}:
+ *   delete:
+ *     summary: Delete a conversation by ID
+ *     tags: [Conversations]
+ *     parameters:
+ *       - in: path
+ *         name: conversationId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the conversation to delete
+ *     responses:
+ *       200:
+ *         description: Conversation deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DeleteResponse'
+ *       404:
+ *         description: Conversation not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.delete('/:conversationId', async (req: Request, res: Response) => {
   try {

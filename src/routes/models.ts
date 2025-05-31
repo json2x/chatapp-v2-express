@@ -4,7 +4,24 @@ import { llmService } from '../services/llm';
 const router = express.Router();
 
 /**
- * Get available LLM models grouped by provider
+ * @swagger
+ * /models:
+ *   get:
+ *     summary: Get available LLM models grouped by provider
+ *     tags: [Models]
+ *     responses:
+ *       200:
+ *         description: Available models grouped by provider
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ModelsResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/', (req: Request, res: Response) => {
   try {
