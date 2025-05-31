@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_DATABASE_URL")
+}
+
+model Conversation {
+  id                    String    @id @default(uuid())
+  title                 String
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at")
+  userId                String?   @map("user_id")
+  model                 String
+  systemPrompt          String?   @map("system_prompt")
+  firstUserMessage      String?   @map("first_user_message")
+  firstAssistantMessage String?   @map("first_assistant_message")
+  metadata              Json?     @default("{}")
+  
+  // Relationship with messages
+  messages              Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String       @map("conversation_id")
+  role           String
+  content        String
+  createdAt      DateTime     @default(now()) @map("created_at")
+  tokens         Int?
+  model          String?
+  metadata       Json?        @default("{}")
+  messageOrder   Int?         @map("message_order")
+  
+  // Relationship with conversation
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId], name: "idx_messages_conversation_id")
+  @@map("messages")
+}
