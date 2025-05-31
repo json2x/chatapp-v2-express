@@ -20,7 +20,7 @@ import { errorHandler } from './middleware/error-handler';
 dotenv.config();
 
 // Initialize Express app
-const app = express();
+export const app = express();
 const port = process.env.PORT || 8001; // Changed to 8001 to avoid conflict
 
 // Initialize Prisma client
@@ -68,17 +68,18 @@ app.get('/', (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// Start server
-const startServer = async () => {
+// Start server function - exported for testing purposes
+export const startServer = async () => {
   try {
     // Connect to the database
     await prisma.$connect();
     console.log('Database connected successfully');
     
     // Start the Express server
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
+    return server;
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
@@ -98,5 +99,7 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-// Start the server
-startServer().catch(console.error);
+// Start the server only if this file is executed directly (not imported for testing)
+if (require.main === module) {
+  startServer().catch(console.error);
+}

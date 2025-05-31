@@ -66,9 +66,12 @@ router.get('/', async (req: Request, res: Response) => {
     // Get conversations from database
     const conversations = await getAllConversations(user_id, limit, offset);
     
-    console.log(`Got ${conversations.length} conversations`);
+    // Ensure conversations is an array before accessing length
+    const conversationsArray = Array.isArray(conversations) ? conversations : [];
+    console.log(`Got ${conversationsArray.length} conversations`);
     
-    res.json(conversations);
+    // Return the conversations (empty array if null/undefined)
+    res.json(conversationsArray);
   } catch (error) {
     console.error('Error listing conversations:', error);
     res.status(400).json({ 
