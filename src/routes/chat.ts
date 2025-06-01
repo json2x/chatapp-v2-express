@@ -4,7 +4,8 @@ import { llmService } from '../services/llm';
 import { 
   createConversation, 
   addMessage, 
-  getConversation 
+  getConversation,
+  updateConversationSubtitle
 } from '../services/database';
 import { ChatRequest, ChatStreamResponse } from '../types';
 
@@ -87,8 +88,11 @@ router.post('/', async (req: Request, res: Response) => {
         ? `${userMessage.substring(0, 50)}...` 
         : userMessage;
       
+      // Create a subtitle from the first few words of the message
+      const subtitle = userMessage.split(' ').slice(0, 5).join(' ') + (userMessage.split(' ').length > 5 ? '...' : '');
+      
       // Create a new conversation
-      const conversation = await createConversation(title, model, undefined, systemPrompt);
+      const conversation = await createConversation(title, model, undefined, systemPrompt, subtitle);
       currentConversationId = conversation.id;
     }
     
@@ -122,7 +126,7 @@ router.post('/', async (req: Request, res: Response) => {
         // Prepare the SSE event data
         const response: ChatStreamResponse = {
           content: content || '',
-          done: false
+          done: false,
         };
         
         // Send the SSE formatted event
@@ -147,6 +151,32 @@ router.post('/', async (req: Request, res: Response) => {
       
       // Save the assistant's response to the database
       await addMessage(currentConversationId, 'assistant', fullContent, model);
+      
+      // Get the conversation to check if it's a new conversation
+      const conversation = await getConversation(currentConversationId, true);
+      
+      // Check if this is the first assistant response in the conversation
+      // We need to check the messages array directly since message_count might not be accurate
+      const assistantMessages = conversation?.messages.filter(msg => msg.role === 'assistant') || [];
+      const isFirstAssistantResponse = assistantMessages.length === 1;
+      
+      console.log('Debug - Conversation ID:', currentConversationId);
+      console.log('Debug - Messages count:', conversation?.messages.length);
+      console.log('Debug - Assistant messages count:', assistantMessages.length);
+      console.log('Debug - Is first assistant response:', isFirstAssistantResponse);
+      
+      // If this is the first assistant response
+      if (isFirstAssistantResponse) {
+        // Use the first 50 characters of the assistant's response as the subtitle
+        const subtitle = fullContent.length > 50 
+          ? `${fullContent.substring(0, 50)}...` 
+          : fullContent;
+        
+        // Update the conversation subtitle
+        console.log('Debug - Updating subtitle to:', subtitle);
+        const updated = await updateConversationSubtitle(currentConversationId, subtitle);
+        console.log('Debug - Subtitle update success:', updated);
+      }
       
       // End the response
       res.end();

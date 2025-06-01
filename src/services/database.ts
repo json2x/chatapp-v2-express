@@ -27,13 +27,12 @@ export async function getAllConversations(
   return conversations.map((conv) => ({
     id: conv.id,
     title: conv.title,
+    subtitle: (conv as any).subtitle || undefined,
     created_at: conv.createdAt.toISOString(),
     updated_at: conv.updatedAt.toISOString(),
     user_id: conv.userId || undefined,
     model: conv.model,
     message_count: conv._count.messages,
-    first_user_message: conv.firstUserMessage || undefined,
-    first_assistant_message: conv.firstAssistantMessage || undefined,
     metadata: conv.metadata as Record<string, any> || {},
   }));
 }
@@ -57,13 +56,12 @@ export async function getConversation(
     const conversationWithMessages = conversation as unknown as {
       id: string;
       title: string;
+      subtitle: string | null;
       createdAt: Date;
       updatedAt: Date;
       userId: string | null;
       model: string;
       systemPrompt: string | null;
-      firstUserMessage: string | null;
-      firstAssistantMessage: string | null;
       metadata: any;
       messages?: Array<{
         id: string;
@@ -93,6 +91,7 @@ export async function getConversation(
     return {
       id: conversationWithMessages.id,
       title: conversationWithMessages.title,
+      subtitle: conversationWithMessages.subtitle || undefined,
       created_at: conversationWithMessages.createdAt.toISOString(),
       updated_at: conversationWithMessages.updatedAt.toISOString(),
       user_id: conversationWithMessages.userId || undefined,
@@ -100,8 +99,6 @@ export async function getConversation(
       system_prompt: conversationWithMessages.systemPrompt || undefined,
       messages: messageSummaries,
       message_count: messageSummaries.length,
-      first_user_message: conversationWithMessages.firstUserMessage || undefined,
-      first_assistant_message: conversationWithMessages.firstAssistantMessage || undefined,
       metadata: conversationWithMessages.metadata as Record<string, any> || {}
     };
   } catch (error) {
@@ -117,12 +114,14 @@ export async function createConversation(
   title: string,
   model: string,
   userId?: string,
-  systemPrompt?: string
+  systemPrompt?: string,
+  subtitle?: string
 ): Promise<Conversation> {
   const conversation = await prisma.conversation.create({
     data: {
       id: uuidv4(),
       title,
+      subtitle: subtitle as any,
       model,
       userId,
       systemPrompt,
@@ -132,14 +131,13 @@ export async function createConversation(
   return {
     id: conversation.id,
     title: conversation.title,
+    subtitle: (conversation as any).subtitle || undefined,
     created_at: conversation.createdAt.toISOString(),
     updated_at: conversation.updatedAt.toISOString(),
     user_id: conversation.userId || undefined,
     model: conversation.model,
     system_prompt: conversation.systemPrompt || undefined,
     message_count: 0,
-    first_user_message: conversation.firstUserMessage || undefined,
-    first_assistant_message: conversation.firstAssistantMessage || undefined,
     metadata: conversation.metadata as Record<string, any> || {},
     messages: [],
   };
@@ -156,6 +154,40 @@ export async function deleteConversation(conversationId: string): Promise<boolea
     return true;
   } catch (error) {
     console.error(`Error deleting conversation ${conversationId}:`, error);
+    return false;
+  }
+}
+
+/**
+ * Update the subtitle of a conversation
+ */
+export async function updateConversationSubtitle(
+  conversationId: string,
+  subtitle: string
+): Promise<boolean> {
+  try {
+    console.log(`Updating subtitle for conversation ${conversationId} to: "${subtitle}"`);
+    
+    // Verify the conversation exists before updating
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+    });
+    
+    if (!conversation) {
+      console.error(`Conversation ${conversationId} not found when trying to update subtitle`);
+      return false;
+    }
+    
+    // Update the subtitle
+    const result = await prisma.conversation.update({
+      where: { id: conversationId },
+      data: { subtitle: subtitle as any }, // Use type assertion to avoid TypeScript errors
+    });
+    
+    console.log(`Subtitle updated successfully for conversation ${conversationId}:`, result.id);
+    return true;
+  } catch (error) {
+    console.error(`Error updating subtitle for conversation ${conversationId}:`, error);
     return false;
   }
 }
@@ -181,36 +213,13 @@ export async function addMessage(
     },
   });
 
-  // Update conversation's first user/assistant message if needed
-  const conversation = await prisma.conversation.findUnique({
+  // Update conversation's updated timestamp
+  await prisma.conversation.update({
     where: { id: conversationId },
-  });
-
-  if (conversation) {
-    const updates: any = {
+    data: {
       updatedAt: new Date(),
-    };
-
-    // If this is the first user message, store a preview
-    if (role === 'user' && !conversation.firstUserMessage) {
-      const preview = content.length > 100 ? `${content.substring(0, 97)}...` : content;
-      updates.firstUserMessage = preview;
-    }
-
-    // If this is the first assistant message, store a preview
-    if (role === 'assistant' && !conversation.firstAssistantMessage) {
-      const preview = content.length > 100 ? `${content.substring(0, 97)}...` : content;
-      updates.firstAssistantMessage = preview;
-    }
-
-    // Update the conversation if needed
-    if (Object.keys(updates).length > 1) {
-      await prisma.conversation.update({
-        where: { id: conversationId },
-        data: updates,
-      });
-    }
-  }
+    },
+  });
 
   return {
     id: message.id,

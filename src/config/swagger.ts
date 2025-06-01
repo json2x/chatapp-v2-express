@@ -1,5 +1,11 @@
 import swaggerJsdoc from 'swagger-jsdoc';
-import { version } from '../../package.json';
+import fs from 'fs';
+import path from 'path';
+
+// Read version from package.json at runtime
+const packageJsonPath = path.resolve(__dirname, '../../package.json');
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+const version = packageJson.version;
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -98,6 +104,10 @@ const options: swaggerJsdoc.Options = {
               type: 'string',
               description: 'The title of the conversation',
             },
+            subtitle: {
+              type: 'string',
+              description: 'The subtitle of the conversation, derived from the first assistant response (up to 50 characters)',
+            },
             created_at: {
               type: 'string',
               format: 'date-time',
@@ -119,14 +129,6 @@ const options: swaggerJsdoc.Options = {
             message_count: {
               type: 'integer',
               description: 'The number of messages in the conversation',
-            },
-            first_user_message: {
-              type: 'string',
-              description: 'The first message from the user (optional)',
-            },
-            first_assistant_message: {
-              type: 'string',
-              description: 'The first message from the assistant (optional)',
             },
             metadata: {
               type: 'object',

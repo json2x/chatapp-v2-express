@@ -48,13 +48,12 @@ export interface ChatStreamResponse {
 export interface ConversationSummary {
   id: string;
   title: string;
+  subtitle?: string;
   created_at: string;
   updated_at: string;
   user_id?: string;
   model: string;
   message_count: number;
-  first_user_message?: string;
-  first_assistant_message?: string;
   metadata?: Record<string, any>;
 }
 

@@ -5,11 +5,14 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding database...');
   
-  // Create a sample conversation
+  // Create a sample conversation with a mock user ID
+  // In a real app, this would be a Supabase user ID
+  const mockUserId = 'supabase-user-123';
+  
   const conversation = await prisma.conversation.create({
     data: {
       title: 'Sample Conversation',
-      userId: 'user123',
+      userId: mockUserId,
       model: 'gpt-4o',
       messages: {
         create: [

@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import 'express-async-errors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpecs from './config/swagger';
+import path from 'path';
 
 // Import routes
 import chatRouter from './routes/chat';
@@ -34,6 +35,9 @@ app.use(cors({
 }));
 app.use(express.json()); // Parse JSON request bodies
 app.use(morgan('dev')); // Request logging
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes
 app.use('/api/chat', chatRouter);
@@ -63,6 +67,11 @@ app.get('/', (req, res) => {
       openapi_json: '/api-docs.json'
     }
   });
+});
+
+// Login page route
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/login.html'));
 });
 
 // Error handling middleware
