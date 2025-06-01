@@ -23,7 +23,7 @@ dotenv.config();
 
 // Initialize Express app
 export const app = express();
-const port = process.env.PORT || 8001; // Changed to 8001 to avoid conflict
+const port = process.env.PORT || 80; // Changed to 8001 to avoid conflict
 
 // Initialize Prisma client
 const prisma = new PrismaClient();
@@ -31,7 +31,7 @@ const prisma = new PrismaClient();
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors({
-  origin: 'http://localhost:9000', // For development - restrict in production
+  origin: ['http://localhost:9000', 'https://chat-app-v2-qce6ukzzy-json2xs-projects.vercel.app'], // For development - restrict in production
   credentials: true,
 }));
 app.use(express.json()); // Parse JSON request bodies
