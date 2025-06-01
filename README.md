@@ -35,7 +35,7 @@ Create a `.env` file in the root directory with the following:
 ```
 ANTHROPIC_API_KEY=your_anthropic_api_key
 OPENAI_API_KEY=your_openai_api_key
-POSTGRES_DATABASE_URL=your_postgres_connection_string
+SUPABASE_DB_URL=your_postgres_connection_string
 PORT=8000
 ```
 

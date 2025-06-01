@@ -45,10 +45,10 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
 
   try {
     // Verify the token using the JWT secret from environment variables
-    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    const jwtSecret = process.env.JWT_SECRET;
     
     if (!jwtSecret) {
-      console.error('SUPABASE_JWT_SECRET is not defined in environment variables');
+      console.error('JWT_SECRET is not defined in environment variables');
       return res.status(500).json({ error: 'Internal server error' });
     }
 
