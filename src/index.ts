@@ -16,6 +16,7 @@ import modelsRouter from './routes/models';
 
 // Import middleware
 import { errorHandler } from './middleware/error-handler';
+import { authenticateJWT } from './middleware/auth';
 
 // Load environment variables
 dotenv.config();
@@ -39,10 +40,10 @@ app.use(morgan('dev')); // Request logging
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Routes
-app.use('/api/chat', chatRouter);
-app.use('/api/conversations', conversationsRouter);
-app.use('/api/models', modelsRouter);
+// Routes with JWT authentication
+app.use('/api/chat', authenticateJWT, chatRouter);
+app.use('/api/conversations', authenticateJWT, conversationsRouter);
+app.use('/api/models', authenticateJWT, modelsRouter);
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { 
