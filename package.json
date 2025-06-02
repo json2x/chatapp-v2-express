@@ -15,7 +15,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "db:init": "ts-node scripts/init-db.ts",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "vercel-build": "echo vercel"
   },
   "keywords": [
     "express",
