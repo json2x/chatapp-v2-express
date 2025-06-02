@@ -16,7 +16,7 @@
     "prisma:studio": "prisma studio",
     "db:init": "ts-node scripts/init-db.ts",
     "db:seed": "prisma db seed",
-    "vercel-build": "prisma generate"
+    "postinstall": "prisma generate"
   },
   "keywords": [
     "express",
