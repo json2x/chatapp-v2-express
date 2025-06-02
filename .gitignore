@@ -44,3 +44,4 @@ tmp/
 temp/
 
 chatapp-v2-api/
+.vercel
