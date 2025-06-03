@@ -16,6 +16,7 @@
     "prisma:studio": "prisma studio",
     "db:init": "ts-node scripts/init-db.ts",
     "db:seed": "prisma db seed",
+    "vercel-build": "echo 'Building for Vercel'",
     "postinstall": "prisma generate"
   },
   "keywords": [
