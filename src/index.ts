@@ -31,8 +31,9 @@ const prisma = new PrismaClient();
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors({
-  origin: ['http://localhost:9000', 'https://chat-app-v2-qce6ukzzy-json2xs-projects.vercel.app'], // For development - restrict in production
+  origin: ['http://localhost:9000', 'https://mrroboto.vercel.app'], // For development - restrict in production
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
 app.use(express.json()); // Parse JSON request bodies
 app.use(morgan('dev')); // Request logging
