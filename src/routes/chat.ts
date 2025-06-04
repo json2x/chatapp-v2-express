@@ -1,4 +1,6 @@
 import express, { Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
 import { z } from 'zod';
 import { llmService } from '../services/llm';
 import { 
@@ -50,14 +52,39 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     // Validate request body
     const validatedRequest = chatRequestSchema.parse(req.body) as ChatRequest;
+
+    // Define path to system prompt file and read its content
+    const systemPromptFilePath = path.join(__dirname, '../../templates/prompts/system_prompt.txt');
+    let fileSystemPrompt = '';
+    try {
+      fileSystemPrompt = fs.readFileSync(systemPromptFilePath, 'utf-8');
+    } catch (err) {
+      console.warn(`Warning: Could not read system prompt file at ${systemPromptFilePath}. Using default or request-provided prompt. Error:`, err);
+      // Proceed without file-based system prompt if file read fails
+    }
     
     const { 
       model, 
       message: userMessage, 
       conversation_id, // Use conversation_id directly from request
-      system_prompt: systemPrompt,
+      system_prompt: requestSystemPrompt, // Renamed to avoid conflict
       summarize_history: summarizeHistory
     } = validatedRequest;
+
+    // Determine the system prompt to use:
+    // Start with the file-based prompt.
+    // If a request-specific prompt is also provided, append it, separated by '-----'.
+    let systemPrompt = fileSystemPrompt; // Default to file content
+
+    if (requestSystemPrompt) {
+      if (systemPrompt) { // If fileSystemPrompt was not empty
+        systemPrompt += "\n-----\n" + requestSystemPrompt;
+      } else { // If fileSystemPrompt was empty, just use requestSystemPrompt
+        systemPrompt = requestSystemPrompt;
+      }
+    }
+    // If requestSystemPrompt is not provided, systemPrompt remains as fileSystemPrompt.
+    // If both fileSystemPrompt and requestSystemPrompt were empty, systemPrompt will be an empty string.
     
     // Check if the model is available
     const availableModels = llmService.getAvailableModels();
@@ -92,7 +119,7 @@ router.post('/', async (req: Request, res: Response) => {
       const subtitle = userMessage.split(' ').slice(0, 5).join(' ') + (userMessage.split(' ').length > 5 ? '...' : '');
       
       // Create a new conversation
-      const conversation = await createConversation(title, model, undefined, systemPrompt, subtitle);
+      const conversation = await createConversation(title, model, undefined, systemPrompt, subtitle); // systemPrompt here now refers to the resolved one
       currentConversationId = conversation.id;
     }
     

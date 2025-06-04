@@ -131,12 +131,17 @@ class LLMServiceProvider {
     }
 
     // Convert database messages to the format expected by LLM providers
-    const messages: ChatMessage[] = conversation.messages
+    let messages: ChatMessage[] = conversation.messages
       .filter((msg) => ['user', 'assistant', 'system'].includes(msg.role))
       .map((msg) => ({
         role: msg.role as 'user' | 'assistant' | 'system',
         content: msg.content,
       }));
+
+    // Prepend the system prompt from the conversation record if it exists
+    if (conversation.systemPrompt) {
+      messages.unshift({ role: 'system', content: conversation.systemPrompt });
+    }
 
     // If messages don't exceed threshold, return as is
     if (messages.length <= CONVERSATION_MESSAGES_THRESHOLD) {
