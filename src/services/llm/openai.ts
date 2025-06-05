@@ -1,4 +1,8 @@
 import OpenAI from 'openai';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 import { ChatMessage, LLMServiceProviderInterface } from '../../types';
 
 export class OpenAIService implements LLMServiceProviderInterface {

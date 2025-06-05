@@ -115,16 +115,19 @@ router.post('/', async (req: Request, res: Response) => {
         ? `${userMessage.substring(0, 50)}...` 
         : userMessage;
       
-      // Create a subtitle from the first few words of the message
-      const subtitle = userMessage.split(' ').slice(0, 5).join(' ') + (userMessage.split(' ').length > 5 ? '...' : '');
+      // Get user ID from the JWT token (sub claim)
+      const userId = req.user?.sub;
       
-      // Create a new conversation
-      const conversation = await createConversation(title, model, undefined, systemPrompt, subtitle); // systemPrompt here now refers to the resolved one
-      currentConversationId = conversation.id;
+      // Create a new conversation with the user ID from the token
+      const newConversation = await createConversation(title, model, userId, systemPrompt);
+      currentConversationId = newConversation.id;
+      
+      // Add the user message to the conversation
+      await addMessage(currentConversationId, 'user', userMessage);
+    } else {
+      // Add the user message to the existing conversation
+      await addMessage(currentConversationId, 'user', userMessage);
     }
-    
-    // Add the user message to the conversation
-    await addMessage(currentConversationId, 'user', userMessage);
     
     // Get the conversation history
     const messages = await llmService.getMessageHistory(currentConversationId, summarizeHistory);
