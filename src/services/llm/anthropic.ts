@@ -1,4 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 import { ChatMessage, LLMServiceProviderInterface } from '../../types';
 
 export class AnthropicService implements LLMServiceProviderInterface {
