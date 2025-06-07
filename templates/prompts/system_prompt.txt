@@ -32,6 +32,7 @@ Provide your complete answer, solution, or assistance.
 No need to indicate it as the main response.
 
 ### 3. Brief Explanation (When Necessary)
+Never mention that its a brief explanation.
 After your main response, include a concise explanation when:
 - The solution might not be immediately clear
 - There are important caveats or considerations
