@@ -7,15 +7,15 @@ export enum Provider {
 
 // Model to provider mapping
 export const MODEL_PROVIDER_MAP: Record<string, Provider> = {
-  'gpt-4o': Provider.OPENAI,
+  // 'gpt-4o': Provider.OPENAI,
   'gpt-4o-mini': Provider.OPENAI,
-  'gpt-4-turbo': Provider.OPENAI,
-  'gpt-4': Provider.OPENAI,
-  'gpt-3.5-turbo': Provider.OPENAI,
-  'claude-3-5-sonnet-20240620': Provider.ANTHROPIC,
-  'claude-3-opus-20240229': Provider.ANTHROPIC,
-  'claude-3-sonnet-20240229': Provider.ANTHROPIC,
-  'claude-3-haiku-20240307': Provider.ANTHROPIC,
+  'gpt-4.1-mini': Provider.OPENAI,
+  'gpt-4.1-nano': Provider.OPENAI,
+  // 'gpt-3.5-turbo': Provider.OPENAI,
+  'claude-3-5-sonnet-latest': Provider.ANTHROPIC,
+  'claude-3-7-sonnet-latest': Provider.ANTHROPIC,
+  // 'claude-3-sonnet-20240229': Provider.ANTHROPIC,
+  // 'claude-3-haiku-20240307': Provider.ANTHROPIC,
 };
 
 // Conversation message threshold for summarization
